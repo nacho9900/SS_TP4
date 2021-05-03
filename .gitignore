@@ -23,3 +23,5 @@ target/
 events*
 *.csv
 TODO.txt
+tp4/.factorypath
+*.class
