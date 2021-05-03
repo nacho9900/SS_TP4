@@ -33,6 +33,10 @@ public class Oscilator {
             saveOscillatorMovement(rs);
         }
 
+        public static void oscilatorVerlet(){
+
+        }
+
         private static void saveOscillatorMovement(List<Double> rs) {
             String dumpFilename = "oscillator";
 
