@@ -20,6 +20,7 @@ public class App
         double k = 10000f; // constant N/m
         double gamma = 100f; // kg/s
         double tf = 5f; // s
+        
         double A = 2f; // TODO: cambiar. no se de donde sale esto
         double deltaT = 0.00001f;
 
