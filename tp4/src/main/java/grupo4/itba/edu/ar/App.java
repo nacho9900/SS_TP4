@@ -1,5 +1,6 @@
 package grupo4.itba.edu.ar;
 
+import grupo4.itba.edu.ar.Model.Vector2;
 import grupo4.itba.edu.ar.Oscilator.Oscilator;
 import grupo4.itba.edu.ar.ParticlePropagation.ParticlePropagation;
 
@@ -19,7 +20,11 @@ public class App
         // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
-        ParticlePropagation particlePropagation = new ParticlePropagation();
+        double D = Math.pow(10, -8);
+        Vector2 v = new Vector2(Math.pow(10, 4), Math.pow(10, 5));
+        double mass = Math.pow(10, -27);
+        double dT = 0.001;
+        ParticlePropagation particlePropagation = new ParticlePropagation(D, v, mass, dT);
         while( !particlePropagation.isDone() ) {
             particlePropagation.nextStep();
         }

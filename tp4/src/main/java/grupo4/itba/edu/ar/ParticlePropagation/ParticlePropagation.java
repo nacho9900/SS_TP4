@@ -23,14 +23,15 @@ public class ParticlePropagation {
     double time;
     List<Vector2> particlePositions;
     
-    public ParticlePropagation(double D, double vx, double vy, double mass, double dT) {
+    public ParticlePropagation(double D, Vector2 v, double mass, double dT) {
         int N = 16; // amount of particles per row/column
         this.D = D;
-        this.L = D*N;
+        this.L = D*(N-1);
         this.dT = dT;
         this.time = 0;
         this.particlePositions = new LinkedList<>();
-        particle = new Particle(new Vector2(-D, 7.5 * D), new Vector2(vx, vy), mass, true);
+        // TODO: verify that a negative x is not an issue
+        particle = new Particle(new Vector2(-D, this.L / 2), v, mass, true);
 
         for (int i = 0; i < N; i++ ) {
             for (int j = 0; j < N; j++ ) {
@@ -40,7 +41,6 @@ public class ParticlePropagation {
     }
 
     public void nextStep() {        
-        // Verlet integration
         for (Particle crystalParticle : crystal) {
             interactWith(crystalParticle);
         }
@@ -49,9 +49,11 @@ public class ParticlePropagation {
     }
 
     private void interactWith(Particle crystalParticle) {
-        // TODO: simulate particle interaction with the crystal using some integration method (crystal is unaffected)
+        // This method uses Verlet integration
 
         time += dT;
+        double k = Math.pow(10, 10); // units: N*m^2/C^2
+        double Q = Math.pow(10, -19); // units: C
         
         // aceleration = -(springConstant/mass) * particle.getX(); // TODO: replace spring force with Coulomb force
         // particle.getX();
