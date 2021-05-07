@@ -13,15 +13,15 @@ public class Particle {
     private Vector2 vel;
     private Vector2 acc;
     private double m;
-    private boolean chargeIsPositive;
+    private int chargeSign;
     // private List<Double> positionsHistory;
 
-    public Particle(Vector2 pos, Vector2 vel, double m, boolean chargeIsPositive) {
+    public Particle(Vector2 pos, Vector2 vel, double m, boolean chargePositive) {
         this.pos = pos;
         this.vel = vel;
         this.acc = new Vector2(0, 0);
         this.m = m;
-        this.chargeIsPositive = chargeIsPositive;
+        this.chargeSign = chargePositive ? 1 : -1;
         // this.positionsHistory = new LinkedList<>();
         // this.positionsHistory.add(currentPosition);
     }

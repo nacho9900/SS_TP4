@@ -41,26 +41,37 @@ public class ParticlePropagation {
                 crystal.add(new Particle(new Vector2(i * D, j * D), new Vector2(0, 0), mass, (i + j) % 2 == 0));
             }
         }
-    }
-
-    public void nextStep() {        
-        for (Particle crystalParticle : crystal) {
-            interactWith(crystalParticle);
-        }
-
         particlePositions.add(particle.getPos());
     }
 
-    private void interactWith(Particle crystalParticle) {
+    public void nextStep() {        
+        time += dT;
+
+        Vector2 force = new Vector2(0, 0);
+        for (Particle crystalParticle : crystal) {
+            force = Vector2.add(force, getCrystalForce(crystalParticle));
+        }
+        System.out.println(force);
+        
+        moveParticle(force);
+        particlePositions.add(particle.getPos());
+    }
+
+    private Vector2 getCrystalForce(Particle crystalParticle) {
         // This method uses Verlet integration
 
-        time += dT;
         double k = Math.pow(10, 10); // units: N*m^2/C^2
         double Q = Math.pow(10, -19); // units: C
         
-        particle.setAcc(new Vector2(1, 1));  // TODO: replace with coulomb
-        // acceleration = -(springConstant/mass) * particle.getX(); // TODO: replace spring force with Coulomb force
-        
+        Vector2 dist = Vector2.sub(crystalParticle.getPos(), particle.getPos());
+        Vector2 unitDist = Vector2.div(dist, Vector2.len(dist));
+        Vector2 force = Vector2.dot(Vector2.dot(Vector2.div(Vector2.pow(Vector2.abs(dist), 2), Q * crystalParticle.getChargeSign()), unitDist), k * Q);
+        // acceleration = force * particle.getX() / -mass;
+        return force;
+    }
+
+    private void moveParticle(Vector2 force) {
+        particle.setAcc(Vector2.dot(Vector2.dot(force, particle.getPos()), -particle.getM()));
         if( firstInteraction ){
             particle.setVel( Vector2.add(particle.getVel(), Vector2.dot(particle.getAcc(), dT / particle.getM())) );
             particle.setPos( Vector2.add(particle.getPos(), Vector2.add(Vector2.dot(particle.getVel(), dT), Vector2.dot( particle.getAcc(), Math.pow(dT,2) / (2*particle.getM())))) );
@@ -70,6 +81,8 @@ public class ParticlePropagation {
             particle.setPos( Vector2.add(Vector2.sub(Vector2.dot(particle.getPos(), 2), prevPos), Vector2.dot(particle.getAcc(), Math.pow(dT,2) / particle.getM())) );
         }
         prevPos = particle.getPos();
+        System.out.println(prevPos);
+        System.out.println();
     }
 
     public boolean isDone() {
@@ -82,13 +95,22 @@ public class ParticlePropagation {
 
         dumpFilename = dumpFilename.replace( ".", "" );
 
-        File dump = new File( dumpFilename + ".csv" );
+        File dump = new File( dumpFilename + ".xyz" );
 
 
         try ( BufferedWriter writer = new BufferedWriter( new FileWriter( dump ) ) ) {
             StringBuilder builder = new StringBuilder();
 
             for ( Vector2 pos : particlePositions ) {
+                builder.append( crystal.size() + 1 )
+                        .append( System.lineSeparator() )
+                        .append( System.lineSeparator() );
+                for ( Particle crystalParticle : crystal ) {
+                    builder.append(crystalParticle.getPos().getX())
+                    .append(" ")
+                    .append(crystalParticle.getPos().getY())
+                    .append( System.lineSeparator() );
+                }
                 builder.append( pos.getX() )
                         .append( " " )
                         .append( pos.getY() )
