@@ -14,6 +14,6 @@ public class App
 {
     public static void main( String[] args )
     {
-        Oscilator.OscilatorMethods.oscillatorAnalitic();
+        Oscilator.OscilatorMethods.predictBeeman();
     }
 }
