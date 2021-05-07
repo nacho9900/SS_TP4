@@ -1,6 +1,8 @@
 package grupo4.itba.edu.ar;
 
+import grupo4.itba.edu.ar.Model.Vector2;
 import grupo4.itba.edu.ar.Oscilator.Oscilator;
+import grupo4.itba.edu.ar.ParticlePropagation.ParticlePropagation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,6 +16,9 @@ public class App
 {
     public static void main( String[] args )
     {
+<<<<<<< HEAD
+        Oscilator.OscilatorMethods.predictBeeman();
+=======
         // Oscilator.OscilatorMethods.oscillatorAnalitic();
         // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
@@ -29,5 +34,6 @@ public class App
         }
 
         particlePropagation.saveMovement();
+>>>>>>> 21d574154ecd7042500c86d4205ad58290d4b1fc
     }
 }

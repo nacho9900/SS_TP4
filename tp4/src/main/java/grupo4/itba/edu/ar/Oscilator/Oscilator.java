@@ -1,7 +1,5 @@
 package grupo4.itba.edu.ar.Oscilator;
 
-import grupo4.itba.edu.ar.Model.Particle;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
