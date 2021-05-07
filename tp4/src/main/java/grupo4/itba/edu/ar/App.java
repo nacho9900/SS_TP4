@@ -25,7 +25,8 @@ public class App
         double mass = Math.pow(10, -27);
         double dT = 0.001;
         ParticlePropagation particlePropagation = new ParticlePropagation(D, v, mass, dT);
-        while( !particlePropagation.isDone() ) {
+        int i = 1000; // TODO: remove once idDone() is implemented
+        while( !particlePropagation.isDone() && i-- > 0 ) {
             particlePropagation.nextStep();
         }
 

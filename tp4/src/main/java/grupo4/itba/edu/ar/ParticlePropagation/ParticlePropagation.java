@@ -15,13 +15,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ParticlePropagation {
-    List<Particle> crystal;
-    Particle particle;
-    double D; //distance between particles in crystal
-    double L; //crystal width/height
-    double dT; // delta time, smallest time unit
-    double time;
-    List<Vector2> particlePositions;
+    private List<Particle> crystal;
+    private Particle particle;
+    private Vector2 prevPos;
+    private double D; //distance between particles in crystal
+    private double L; //crystal width/height
+    private double dT; // delta time, smallest time unit
+    private double time;
+    private List<Vector2> particlePositions;
+    private boolean firstInteraction = true;
     
     public ParticlePropagation(double D, Vector2 v, double mass, double dT) {
         int N = 16; // amount of particles per row/column
@@ -33,6 +35,7 @@ public class ParticlePropagation {
         // TODO: verify that a negative x is not an issue
         particle = new Particle(new Vector2(-D, this.L / 2), v, mass, true);
 
+        crystal = new LinkedList<>();
         for (int i = 0; i < N; i++ ) {
             for (int j = 0; j < N; j++ ) {
                 crystal.add(new Particle(new Vector2(i * D, j * D), new Vector2(0, 0), mass, (i + j) % 2 == 0));
@@ -55,15 +58,18 @@ public class ParticlePropagation {
         double k = Math.pow(10, 10); // units: N*m^2/C^2
         double Q = Math.pow(10, -19); // units: C
         
-        // aceleration = -(springConstant/mass) * particle.getX(); // TODO: replace spring force with Coulomb force
-        // particle.getX();
-        // if(i==0){
-        //     nextVelocity = initialVelocity + aceleration * dT / mass;
-        //     nextPosition = initialPosition + nextVelocity * dT + Math.pow(dT,2) * aceleration / (2*mass);
-        // }
-        // else {
-        //     nextPosition = 2 * positions.get(i) - positions.get(i - 1) + aceleration * Math.pow(dT,2) / mass;
-        // }
+        particle.setAcc(new Vector2(1, 1));  // TODO: replace with coulomb
+        // acceleration = -(springConstant/mass) * particle.getX(); // TODO: replace spring force with Coulomb force
+        
+        if( firstInteraction ){
+            particle.setVel( Vector2.add(particle.getVel(), Vector2.dot(particle.getAcc(), dT / particle.getM())) );
+            particle.setPos( Vector2.add(particle.getPos(), Vector2.add(Vector2.dot(particle.getVel(), dT), Vector2.dot( particle.getAcc(), Math.pow(dT,2) / (2*particle.getM())))) );
+            firstInteraction = false;
+        }
+        else {
+            particle.setPos( Vector2.add(Vector2.sub(Vector2.dot(particle.getPos(), 2), prevPos), Vector2.dot(particle.getAcc(), Math.pow(dT,2) / particle.getM())) );
+        }
+        prevPos = particle.getPos();
     }
 
     public boolean isDone() {
@@ -72,7 +78,7 @@ public class ParticlePropagation {
     }
 
     public void saveMovement() {
-        String dumpFilename = "oscillator";
+        String dumpFilename = "crystal";
 
         dumpFilename = dumpFilename.replace( ".", "" );
 
