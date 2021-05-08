@@ -1,6 +1,8 @@
 package grupo4.itba.edu.ar;
 
+import grupo4.itba.edu.ar.Model.Vector2;
 import grupo4.itba.edu.ar.Oscilator.Oscilator;
+import grupo4.itba.edu.ar.ParticlePropagation.ParticlePropagation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,10 +21,10 @@ public class App
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
        double D = 1e-8;
-       Vector2 v = new Vector2(10e3, 100e3);
+       Vector2 v = new Vector2( 10e3, 100e3);
        double mass = 1e-27;
        double dT = 1e-13;
-       ParticlePropagation particlePropagation = new ParticlePropagation(D, v, mass, dT);
+       ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT);
        int i = 100000; // TODO: remove once idDone() is implemented
        while( !particlePropagation.isDone() && i-- > 0 ) {
            particlePropagation.nextStep();
