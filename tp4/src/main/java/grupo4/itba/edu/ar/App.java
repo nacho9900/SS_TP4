@@ -18,12 +18,12 @@ public class App
         // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
-       double D = Math.pow(10, -8);
-       Vector2 v = new Vector2(Math.pow(10, 4), Math.pow(10, 5));
-       double mass = Math.pow(10, -27);
-       double dT = 0.001;
+       double D = 1e-8;
+       Vector2 v = new Vector2(10e3, 100e3);
+       double mass = 1e-27;
+       double dT = 1e-13;
        ParticlePropagation particlePropagation = new ParticlePropagation(D, v, mass, dT);
-       int i = 3; // TODO: remove once idDone() is implemented
+       int i = 100000; // TODO: remove once idDone() is implemented
        while( !particlePropagation.isDone() && i-- > 0 ) {
            particlePropagation.nextStep();
        }
