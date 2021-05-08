@@ -15,7 +15,7 @@ public class App
     public static void main( String[] args )
     {
         // Oscilator.OscilatorMethods.oscillatorAnalitic();
-         Oscilator.OscilatorMethods.oscilatorVerlet();
+         Oscilator.OscilatorMethods.gearPredictorCorrector();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
 //        double D = Math.pow(10, -8);

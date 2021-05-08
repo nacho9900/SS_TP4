@@ -1,5 +1,7 @@
 package grupo4.itba.edu.ar.Oscilator;
 
+import com.sun.jdi.DoubleValue;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +21,7 @@ public class Oscilator {
         private static double A = 1f; // TODO: cambiar. no se de donde sale esto
         private static double deltaT = 0.05f;
         private static double springConstant = 1;
+        private static double[] alphas = new double[] { (3 / 16.0), (251/360.0), 1.0, (11/18.0), (1/6.0), (1/60.0)};
 
         public static void oscillatorAnalitic() {
             LinkedList<Double> rs = new LinkedList<>();
@@ -33,10 +36,6 @@ public class Oscilator {
                 rs.add(r);
             }
             saveOscillatorMovement(rs);
-        }
-
-        private static void gearPredictorCorrector(){
-
         }
 
         private static void saveOscillatorMovement(List<Double> rs) {
@@ -123,6 +122,70 @@ public class Oscilator {
                 velocities.add(nextVelocity);
             }
             saveOscillatorMovement(positions);
+        }
+
+        private static List<Double> calculateDerivs(double position, double velocity){
+            List<Double> resp = new LinkedList<>();
+            resp.add(position);
+            resp.add(velocity);
+            resp.add(-k / mass * position);
+            resp.add(-k / mass * velocity);
+            resp.add(Math.pow((-k / mass),2) * position);
+            resp.add(Math.pow((-k / mass),2) * velocity);
+
+            return resp;
+        }
+
+        private static List<Double> generatePrediction(List<Double> derivs){
+            List<Double> resp = new LinkedList<>();
+            double auxiliar;
+
+            for(int i = 0; i < derivs.size(); i++){
+                auxiliar = 0;
+                for(int j = 0; j < derivs.size() - i; j++)
+                    auxiliar += derivs.get(i + j) * Math.pow(deltaT, j) / calculateFactorial(j);
+                resp.add(auxiliar);
+            }
+            return resp;
+        }
+
+        private static Double evalAccel(List<Double> predictions){
+            double resp = (-k * predictions.get(0) - (gamma * predictions.get(1))) / mass;
+            return ((resp - predictions.get(2)) * Math.pow(deltaT,2)) / 2;
+        }
+
+        public static void gearPredictorCorrector(){
+            LinkedList<Double> positions = new LinkedList<>();
+            LinkedList<Double> velocities = new LinkedList<>();
+
+            double initialPosition = 1;
+            positions.add(initialPosition);
+
+            double initialVelocity = -A*gamma / (2f*mass);
+            velocities.add(initialVelocity);
+
+            List<Double> predictions = calculateDerivs(initialPosition,initialVelocity);
+            double r2;
+            double aux;
+
+            for(int i = 1; i < 100; i++) {
+                predictions = generatePrediction(predictions);
+                r2 = evalAccel(predictions);
+
+                for(int j = 0; j < predictions.size(); j++){
+                    aux = predictions.get(j) + alphas[j] * r2 * calculateFactorial(j) / Math.pow(deltaT,j);
+                    predictions.set(j, aux);
+                }
+                positions.add(predictions.get(0));
+            }
+
+            saveOscillatorMovement(positions);
+        }
+
+
+        private static double calculateFactorial(int n){
+            if(n == 0 || n == 1) return 1;
+            return n * calculateFactorial(n -1);
         }
 
     }
