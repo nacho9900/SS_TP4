@@ -35,73 +35,6 @@ public class Oscilator {
             saveOscillatorMovement(rs);
         }
 
-        public static void oscilatorVerlet(){
-            LinkedList<Double> positions = new LinkedList<>();
-
-            double initialPosition = 1;
-            positions.add(initialPosition);
-
-            double initialVelocity = -A*gamma / (2f*mass);
-
-            double nextPosition;
-            double nextVelocity;
-            double aceleration;
-
-            for(int i = 0; i < 100; i++ ){
-
-                aceleration = -(k/mass) * positions.get(i);
-
-                if(i==0){
-                    nextVelocity = initialVelocity + aceleration * deltaT;
-                    nextPosition = (initialPosition + nextVelocity * deltaT + Math.pow(deltaT,2) * aceleration / (2));
-                }
-                else
-                    nextPosition = 2 * positions.get(i) - positions.get(i - 1) + aceleration * Math.pow(deltaT,2);
-
-                positions.add(nextPosition);
-            }
-
-            saveOscillatorMovement(positions);
-        }
-
-
-        public static void oscilatorBeeman(){
-            LinkedList<Double> positions = new LinkedList<>();
-            LinkedList<Double> velocities = new LinkedList<>();
-            LinkedList<Double> acelerations = new LinkedList<>();
-
-
-            double initialPosition = 1;
-            positions.add(initialPosition);
-
-            double initialAceleration = -(k/mass) * positions.get(0);
-            acelerations.add(initialAceleration);
-
-            double initialVelocity = -A*gamma / (2f*mass);
-            velocities.add(initialVelocity);
-
-            double nextPosition = initialPosition + initialVelocity * deltaT + 2/3 * initialAceleration * Math.pow(deltaT,2);
-            positions.add(nextPosition);
-
-            double nextAceleration = -(k/mass) * positions.get(1);
-            acelerations.add(nextAceleration);
-
-            double nextVelocity = velocities.get(0) + (1/3) * nextAceleration * deltaT + (5/6) * acelerations.get(0) * deltaT;
-            velocities.add(nextVelocity);
-
-            for(int i = 1; i < 98; i++ ){
-
-                nextPosition = positions.get(i) + velocities.get(i) * deltaT + (2/3) * acelerations.get(i) * Math.pow(deltaT,2) - (1/6) * acelerations.get(i - 1) * Math.pow(deltaT,2);
-                nextAceleration = -(k/mass) * nextPosition;
-                nextVelocity = velocities.get(i) + (1/3) * nextAceleration * deltaT + (5/6) * acelerations.get(i) * deltaT - (1/6) * acelerations.get(i - 1) * deltaT;
-                positions.add(nextPosition);
-                velocities.add(nextVelocity);
-                acelerations.add(nextAceleration);
-            }
-
-            saveOscillatorMovement(positions);
-        }
-
         private static void gearPredictorCorrector(){
 
         }
@@ -130,22 +63,7 @@ public class Oscilator {
             }
         }
 
-
-
-        private float factorial(int n){
-            if(n == 0 || n == 1) return 1;
-            return n * factorial(n -1);
-        }
-
-        private static double calculateForce(double x, double v){
-            return -k * x - (gamma * v);
-        }
-
-        private static double calculateAcceleration(double x, double v, double m){
-            return (-k * x - (gamma * v)) / m;
-        }
-
-        public static void predictEuler(){
+        public static void oscilatorVerlet(){
             LinkedList<Double> positions = new LinkedList<>();
 
             double initialPosition = 1;
@@ -168,7 +86,7 @@ public class Oscilator {
             saveOscillatorMovement(positions);
         }
 
-        public static void predictBeeman(){
+        public static void oscilatorBeeman(){
             LinkedList<Double> positions = new LinkedList<>();
             LinkedList<Double> velocities = new LinkedList<>();
 

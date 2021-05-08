@@ -7,7 +7,7 @@ import sys
 #     sys.exit(-1)
 paths = []
 # TODO: agregar los otros 3 (beeman, verlet, etc)
-with open('oscillator.csv') as f:
+with open('tp4/oscillator.csv') as f:
     lines = f.readlines()
     x = [float(line.split(' ')[0]) for line in lines]
 paths = {'x': x}
