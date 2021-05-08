@@ -15,19 +15,19 @@ public class App
     public static void main( String[] args )
     {
         // Oscilator.OscilatorMethods.oscillatorAnalitic();
-         Oscilator.OscilatorMethods.gearPredictorCorrector();
+        // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
-//        double D = Math.pow(10, -8);
-//        Vector2 v = new Vector2(Math.pow(10, 4), Math.pow(10, 5));
-//        double mass = Math.pow(10, -27);
-//        double dT = 0.001;
-//        ParticlePropagation particlePropagation = new ParticlePropagation(D, v, mass, dT);
-//        int i = 1000; // TODO: remove once idDone() is implemented
-//        while( !particlePropagation.isDone() && i-- > 0 ) {
-//            particlePropagation.nextStep();
-//        }
-//
-//        particlePropagation.saveMovement();
+       double D = Math.pow(10, -8);
+       Vector2 v = new Vector2(Math.pow(10, 4), Math.pow(10, 5));
+       double mass = Math.pow(10, -27);
+       double dT = 0.001;
+       ParticlePropagation particlePropagation = new ParticlePropagation(D, v, mass, dT);
+       int i = 3; // TODO: remove once idDone() is implemented
+       while( !particlePropagation.isDone() && i-- > 0 ) {
+           particlePropagation.nextStep();
+       }
+
+       particlePropagation.saveMovement();
     }
 }

@@ -58,8 +58,6 @@ public class ParticlePropagation {
     }
 
     private Vector2 getCrystalForce(Particle crystalParticle) {
-        // This method uses Verlet integration
-
         double k = Math.pow(10, 10); // units: N*m^2/C^2
         double Q = Math.pow(10, -19); // units: C
         
@@ -71,14 +69,16 @@ public class ParticlePropagation {
     }
 
     private void moveParticle(Vector2 force) {
-        particle.setAcc(Vector2.dot(Vector2.dot(force, particle.getPos()), -particle.getM()));
+        // This method uses Verlet integration
+        particle.setAcc(Vector2.div(force, particle.getM()));
         if( firstInteraction ){
-            particle.setVel( Vector2.add(particle.getVel(), Vector2.dot(particle.getAcc(), dT / particle.getM())) );
-            particle.setPos( Vector2.add(particle.getPos(), Vector2.add(Vector2.dot(particle.getVel(), dT), Vector2.dot( particle.getAcc(), Math.pow(dT,2) / (2*particle.getM())))) );
+            particle.setVel( Vector2.add(particle.getVel(), Vector2.dot(particle.getAcc(), dT)) );
+            particle.setPos( Vector2.add(particle.getPos(), Vector2.add(Vector2.dot(particle.getVel(), dT), Vector2.dot( particle.getAcc(), Math.pow(dT,2) / 2))) );
             firstInteraction = false;
         }
         else {
-            particle.setPos( Vector2.add(Vector2.sub(Vector2.dot(particle.getPos(), 2), prevPos), Vector2.dot(particle.getAcc(), Math.pow(dT,2) / particle.getM())) );
+            particle.setVel( Vector2.add(particle.getVel(), Vector2.dot(particle.getAcc(), dT)) );
+            particle.setPos( Vector2.add(Vector2.sub(Vector2.dot(particle.getPos(), 2), prevPos), Vector2.dot(particle.getAcc(), Math.pow(dT,2))) );
         }
         prevPos = particle.getPos();
         System.out.println(prevPos);
