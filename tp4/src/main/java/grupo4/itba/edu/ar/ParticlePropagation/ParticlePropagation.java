@@ -12,21 +12,17 @@ import grupo4.itba.edu.ar.Model.EndState;
 import grupo4.itba.edu.ar.Model.Particle;
 import grupo4.itba.edu.ar.Model.Vector2;
 import grupo4.itba.edu.ar.util.MathHelper;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class ParticlePropagation
 {
-    private List<Particle> crystal;
-    private Particle particle;
+    private final List<Particle> crystal;
+    private final Particle particle;
     private Vector2 prevPos;
-    private double D; //distance between particles in crystal
-    private double L; //crystal width/height
-    private double dT; // delta time, smallest time unit
+    private final double D; //distance between particles in crystal
+    private final double L; //crystal width/height
+    private final double dT; // delta time, smallest time unit
     private double time;
-    private List<Vector2> particlePositions;
+    private final List<Vector2> particlePositions;
     private boolean firstIteration = true;
     private final double Q = 1e-19;
     private final double k = 1e10;
@@ -101,7 +97,6 @@ public class ParticlePropagation
     }
 
     private void moveParticle( Vector2 force ) {
-        // System.out.println( particle.getPos() );
         // This method uses Verlet integration
         Vector2 acceleration = Vector2.div( force, particle.getM() ); // a = (F / m)
         particle.setAcc( acceleration );
