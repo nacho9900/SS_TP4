@@ -44,8 +44,4 @@ public class Particle
     public double getTotalEnergy(List<Particle> particles) {
         return this.getKineticEnergy() + this.getElectrostaticPotentialEnergy( particles );
     }
-
-    public int getChargeSign() {
-        return this.charge > 0 ? 1 : -1;
-    }
 }

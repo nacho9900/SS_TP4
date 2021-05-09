@@ -37,4 +37,9 @@ public class App
         // List<Double> lengths = particlePropagation.calculatePathLength();
         // System.out.println("Particle path length: " + lengths.stream().reduce(0d, (x, y) -> x + y));
     }
+
+    //2.2
+    private void energyThrowDifferentDts(){
+
+    }
 }

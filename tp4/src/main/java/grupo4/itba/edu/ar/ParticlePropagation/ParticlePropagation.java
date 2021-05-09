@@ -59,7 +59,7 @@ public class ParticlePropagation
 
     public EndState run() {
         EndState state = EndState.NOT_DONE;
-        while( state == EndState.NOT_DONE ) {
+        while ( state == EndState.NOT_DONE ) {
             state = nextStep();
         }
 
@@ -90,12 +90,12 @@ public class ParticlePropagation
 
     private Vector2 getCrystalForce( Particle crystalParticle ) {
         Vector2 distance = Vector2.sub( particle.getPos(), crystalParticle.getPos() );
-        if (Vector2.abs(distance) < this.D * 0.01) { 
+        if ( Vector2.abs( distance ) < this.D * 0.01 ) {
             this.collidedInside = true;
         }
         Vector2 unitVector = Vector2.div( distance, Vector2.abs( distance ) );
-        Vector2 force = Vector2.dot( unitVector, ( this.Q * crystalParticle.getChargeSign() ) /
-                                                 Math.pow( Vector2.abs( distance ), 2 ) );
+        Vector2 force = Vector2.dot( unitVector,
+                                     ( crystalParticle.getCharge() ) / Math.pow( Vector2.abs( distance ), 2 ) );
         // acceleration = force * particle.getX() / -mass;
         return force;
     }
@@ -131,7 +131,7 @@ public class ParticlePropagation
 
     private EndState getCurrentState() {
         // DEBUG
-        if (this.collidedInside) {
+        if ( this.collidedInside ) {
             return EndState.INSIDE;
         }
 
@@ -140,13 +140,16 @@ public class ParticlePropagation
 
     private EndState outOfBounds() {
         Vector2 pos = this.particle.getPos();
-        if (pos.getX() < -D) {
+        if ( pos.getX() < -D ) {
             return EndState.LEFT_WALL;
-        } else if (pos.getX() > L) {
+        }
+        else if ( pos.getX() > L ) {
             return EndState.RIGHT_WALL;
-        } else if (pos.getY() < 0) {
+        }
+        else if ( pos.getY() < 0 ) {
             return EndState.LOWER_WALL;
-        } else if (pos.getY() > L) {
+        }
+        else if ( pos.getY() > L ) {
             return EndState.UPPER_WALL;
         }
         return EndState.NOT_DONE;
@@ -155,13 +158,13 @@ public class ParticlePropagation
     public List<Double> calculatePathLength() {
         Vector2 prevPos = null;
         List<Double> lengths = new LinkedList<>();
-        for (Vector2 pos : particlePositions) {
-            if (prevPos == null) {
+        for ( Vector2 pos : particlePositions ) {
+            if ( prevPos == null ) {
                 prevPos = pos;
                 continue;
             }
 
-            lengths.add(Vector2.abs(Vector2.sub(pos, prevPos)));
+            lengths.add( Vector2.abs( Vector2.sub( pos, prevPos ) ) );
         }
 
         return lengths;
@@ -185,7 +188,7 @@ public class ParticlePropagation
                                 .append( crystalParticle.getPos().getY() )
                                 .append( " " )
                                 .append( "1.0E-9" )
-                                .append( crystalParticle.getChargeSign() > 0 ? redString : blueString )
+                                .append( crystalParticle.getCharge() > 0 ? redString : blueString )
                                 .append( System.lineSeparator() );
         }
 
