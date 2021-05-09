@@ -25,8 +25,9 @@ public class App
        double mass = 1e-27;
        double dT = 1e-13;
        ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT);
-       while( !particlePropagation.isDone() ) {
-           particlePropagation.nextStep();
+       boolean isDone = false;
+       while( !isDone ) {
+           isDone = particlePropagation.nextStep();
        }
 
        particlePropagation.saveMovement();

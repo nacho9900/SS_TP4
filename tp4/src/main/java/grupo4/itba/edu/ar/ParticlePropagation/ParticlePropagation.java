@@ -49,11 +49,17 @@ public class ParticlePropagation
         particlePositions.add( particle.getPos() );
     }
 
-    public void nextStep() {
+    public boolean nextStep() {
         time += dT;
         Vector2 force = getForce();
         moveParticle( force );
-        particlePositions.add( particle.getPos() );
+
+        if ( isDone() ) {
+            return true;
+        } else {
+            particlePositions.add( particle.getPos() );
+            return false;
+        }
     }
 
     private Vector2 getForce() {
