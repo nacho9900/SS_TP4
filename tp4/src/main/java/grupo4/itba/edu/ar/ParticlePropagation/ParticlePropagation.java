@@ -125,7 +125,7 @@ public class ParticlePropagation
 
     private boolean isDone() {
         // DEBUG
-        if (this.isDone && !outOfBounds()) {
+        if (this.isDone || outOfBounds()) {
             System.out.println("Exit condition:\n- Got too close to a crystal particle: " + this.isDone + "\n- Got out of bounds: "+ outOfBounds());
         }
 
