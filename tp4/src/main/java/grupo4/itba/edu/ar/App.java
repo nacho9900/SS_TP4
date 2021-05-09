@@ -1,5 +1,6 @@
 package grupo4.itba.edu.ar;
 
+import grupo4.itba.edu.ar.Model.EndState;
 import grupo4.itba.edu.ar.Model.Vector2;
 import grupo4.itba.edu.ar.Oscilator.Oscilator;
 import grupo4.itba.edu.ar.ParticlePropagation.ParticlePropagation;
@@ -28,6 +29,12 @@ public class App
         double dT = 1e-13;
         int seed = 6432121;
         ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
-        particlePropagation.run();
+
+        EndState state = particlePropagation.run();
+        System.out.println(state);
+
+        // For 2.3 - Calculates length for each dT
+        // List<Double> lengths = particlePropagation.calculatePathLength();
+        // System.out.println("Particle path length: " + lengths.stream().reduce(0d, (x, y) -> x + y));
     }
 }
