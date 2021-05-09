@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -12,6 +13,7 @@ import grupo4.itba.edu.ar.Model.EndState;
 import grupo4.itba.edu.ar.Model.Particle;
 import grupo4.itba.edu.ar.Model.Vector2;
 import grupo4.itba.edu.ar.util.MathHelper;
+import lombok.Getter;
 
 public class ParticlePropagation
 {
@@ -26,7 +28,11 @@ public class ParticlePropagation
     private boolean firstIteration = true;
     private final double Q = 1e-19;
     private final double k = 1e10;
+    private final int seed;
     private boolean collidedInside = false;
+    @Getter
+    private final List<Double> deltaEnergyThroughTime;
+    private final double startingTotalEnergy;
 
     public ParticlePropagation( double D, Vector2 v, double mass, double dT, int seed ) {
         int N = 16; // amount of particles per row/column
@@ -34,6 +40,7 @@ public class ParticlePropagation
         this.L = D * ( N - 1 );
         this.dT = dT;
         this.time = 0;
+        this.seed = seed;
         this.particlePositions = new LinkedList<>();
         // TODO: verify that a negative x is not an issue
         Random r = new Random( seed );
@@ -51,20 +58,26 @@ public class ParticlePropagation
             }
         }
         particlePositions.add( particle.getPos() );
+        deltaEnergyThroughTime = new ArrayList<>();
+        this.startingTotalEnergy = particle.getTotalEnergy( crystal );
     }
 
-    public EndState run() {
+    public EndState run( boolean saveMovements ) {
         EndState state = EndState.NOT_DONE;
         while ( state == EndState.NOT_DONE ) {
             state = nextStep();
         }
 
-        saveMovement();
+        if ( saveMovements ) {
+            saveMovement();
+        }
+
         return state;
     }
 
     private EndState nextStep() {
         time += dT;
+
         Vector2 force = getForce();
         moveParticle( force );
 
@@ -72,6 +85,8 @@ public class ParticlePropagation
         if ( state == EndState.NOT_DONE ) {
             particlePositions.add( particle.getPos() );
         }
+
+        deltaEnergyThroughTime.add( Math.abs( startingTotalEnergy - particle.getTotalEnergy( crystal ) ) );
         return state;
     }
 
@@ -166,16 +181,14 @@ public class ParticlePropagation
     }
 
     private void saveMovement() {
-        String dumpFilename = "crystal";
-
-        dumpFilename = dumpFilename.replace( ".", "" );
+        String dumpFilename = String.format( "crystal_%d", this.seed );
 
         File dump = new File( dumpFilename + ".xyz" );
 
         StringBuilder crystalStringBuilder = new StringBuilder();
         String redString = " 1 0 0";
         String blueString = " 0 0 1";
-        String whiteString = " 0 1 0";
+        String greenString = " 0 1 0";
 
         for ( Particle crystalParticle : crystal ) {
             crystalStringBuilder.append( crystalParticle.getPos().getX() )
@@ -193,6 +206,7 @@ public class ParticlePropagation
             StringBuilder builder = new StringBuilder();
 
             for ( Vector2 pos : particlePositions ) {
+                builder.setLength( 0 );
                 builder.append( crystal.size() + 1 ).append( System.lineSeparator() ).append( System.lineSeparator() );
                 builder.append( crystalString );
                 builder.append( pos.getX() )
@@ -200,12 +214,12 @@ public class ParticlePropagation
                        .append( pos.getY() )
                        .append( " " )
                        .append( "1.0E-9" )
-                       .append( whiteString )
+                       .append( greenString )
                        .append( System.lineSeparator() );
-            }
 
-            writer.write( builder.toString() );
-            writer.flush();
+                writer.write( builder.toString() );
+                writer.flush();
+            }
         }
         catch ( IOException e ) {
             e.printStackTrace();
