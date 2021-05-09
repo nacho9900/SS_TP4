@@ -10,6 +10,7 @@ import java.util.Random;
 
 import grupo4.itba.edu.ar.Model.Particle;
 import grupo4.itba.edu.ar.Model.Vector2;
+import grupo4.itba.edu.ar.util.MathHelper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,14 +39,18 @@ public class ParticlePropagation
         this.time = 0;
         this.particlePositions = new LinkedList<>();
         // TODO: verify that a negative x is not an issue
-        Random r = new Random(seed);
-        particle = new Particle( new Vector2( -D, r.nextDouble() * 2 * D + L/2-D ), v, mass, true );
+        Random r = new Random( seed );
+        double upperBoundary = ( L / 2 ) + D;
+        double lowerBoundary = ( L / 2 ) - D;
+        double y = MathHelper.randBetween( r, lowerBoundary, upperBoundary );
+        particle = new Particle( new Vector2( -D, y ), v, mass, this.Q );
 
         crystal = new LinkedList<>();
         for ( int i = 0; i < N; i++ ) {
             for ( int j = 0; j < N; j++ ) {
-                crystal.add(
-                        new Particle( new Vector2( i * D, j * D ), new Vector2( 0, 0 ), mass, ( i + j ) % 2 == 0 ) );
+                boolean isPositiveCharge = ( i + j ) % 2 == 0;
+                crystal.add( new Particle( new Vector2( i * D, j * D ), new Vector2( 0, 0 ), mass,
+                                           isPositiveCharge ? this.Q : -1 * this.Q ) );
             }
         }
         particlePositions.add( particle.getPos() );
@@ -53,7 +58,7 @@ public class ParticlePropagation
 
     public void run() {
         boolean isDone = false;
-        while( !isDone ) {
+        while ( !isDone ) {
             isDone = nextStep();
         }
 
@@ -67,7 +72,8 @@ public class ParticlePropagation
 
         if ( isDone() ) {
             return true;
-        } else {
+        }
+        else {
             particlePositions.add( particle.getPos() );
             return false;
         }
@@ -84,7 +90,7 @@ public class ParticlePropagation
 
     private Vector2 getCrystalForce( Particle crystalParticle ) {
         Vector2 distance = Vector2.sub( particle.getPos(), crystalParticle.getPos() );
-        if (Vector2.abs(distance) < this.D * 0.01) { 
+        if ( Vector2.abs( distance ) < this.D * 0.01 ) {
             this.isDone = true;
         }
         Vector2 unitVector = Vector2.div( distance, Vector2.abs( distance ) );

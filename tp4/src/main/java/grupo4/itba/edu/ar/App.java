@@ -26,7 +26,7 @@ public class App
         
         // Variable conditions
         double dT = 1e-13;
-        int seed = 24;
+        int seed = 6432121;
         ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
         particlePropagation.run();
     }
