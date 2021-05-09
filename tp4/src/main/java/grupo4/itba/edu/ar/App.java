@@ -19,17 +19,15 @@ public class App
         // Oscilator.OscilatorMethods.oscillatorAnalitic();
         // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
-
-       double D = 1e-8;
-       Vector2 v = new Vector2( 10e3, 100e3);
-       double mass = 1e-27;
-       double dT = 1e-13;
-       ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT);
-       boolean isDone = false;
-       while( !isDone ) {
-           isDone = particlePropagation.nextStep();
-       }
-
-       particlePropagation.saveMovement();
+        
+        Vector2 v = new Vector2( 10e3, 100e3);
+        double mass = 1e-27;
+        double D = 1e-8;
+        
+        // Variable conditions
+        double dT = 1e-13;
+        int seed = 24;
+        ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
+        particlePropagation.run();
     }
 }

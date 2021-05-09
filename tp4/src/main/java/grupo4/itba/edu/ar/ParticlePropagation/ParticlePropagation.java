@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import grupo4.itba.edu.ar.Model.Particle;
 import grupo4.itba.edu.ar.Model.Vector2;
@@ -29,7 +30,7 @@ public class ParticlePropagation
     private final double k = 1e10;
     private boolean isDone = false;
 
-    public ParticlePropagation( double D, Vector2 v, double mass, double dT ) {
+    public ParticlePropagation( double D, Vector2 v, double mass, double dT, int seed ) {
         int N = 16; // amount of particles per row/column
         this.D = D;
         this.L = D * ( N - 1 );
@@ -37,7 +38,8 @@ public class ParticlePropagation
         this.time = 0;
         this.particlePositions = new LinkedList<>();
         // TODO: verify that a negative x is not an issue
-        particle = new Particle( new Vector2( -D, this.L / 2 ), v, mass, true );
+        Random r = new Random(seed);
+        particle = new Particle( new Vector2( -D, r.nextDouble() * 2 * D + L/2-D ), v, mass, true );
 
         crystal = new LinkedList<>();
         for ( int i = 0; i < N; i++ ) {
@@ -49,7 +51,16 @@ public class ParticlePropagation
         particlePositions.add( particle.getPos() );
     }
 
-    public boolean nextStep() {
+    public void run() {
+        boolean isDone = false;
+        while( !isDone ) {
+            isDone = nextStep();
+        }
+
+        saveMovement();
+    }
+
+    private boolean nextStep() {
         time += dT;
         Vector2 force = getForce();
         moveParticle( force );
@@ -112,9 +123,9 @@ public class ParticlePropagation
         prevPos = particle.getPos();
     }
 
-    public boolean isDone() {
+    private boolean isDone() {
         // DEBUG
-        if (this.isDone || outOfBounds()) {
+        if (this.isDone && !outOfBounds()) {
             System.out.println("Exit condition:\n- Got too close to a crystal particle: " + this.isDone + "\n- Got out of bounds: "+ outOfBounds());
         }
 
@@ -126,7 +137,7 @@ public class ParticlePropagation
         return pos.getX() < -D || pos.getX() > L || pos.getY() < 0 || pos.getY() > L;
     }
 
-    public void saveMovement() {
+    private void saveMovement() {
         String dumpFilename = "crystal";
 
         dumpFilename = dumpFilename.replace( ".", "" );
