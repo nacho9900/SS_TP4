@@ -27,6 +27,7 @@ public class ParticlePropagation
     private boolean firstIteration = true;
     private final double Q = 1e-19;
     private final double k = 1e10;
+    private boolean isDone = false;
 
     public ParticlePropagation( double D, Vector2 v, double mass, double dT ) {
         int N = 16; // amount of particles per row/column
@@ -66,6 +67,9 @@ public class ParticlePropagation
 
     private Vector2 getCrystalForce( Particle crystalParticle ) {
         Vector2 distance = Vector2.sub( particle.getPos(), crystalParticle.getPos() );
+        if (Vector2.abs(distance) < this.D * 0.01) { 
+            this.isDone = true;
+        }
         Vector2 unitVector = Vector2.div( distance, Vector2.abs( distance ) );
         Vector2 force = Vector2.dot( unitVector, ( this.Q * crystalParticle.getChargeSign() ) /
                                                  Math.pow( Vector2.abs( distance ), 2 ) );
@@ -74,7 +78,7 @@ public class ParticlePropagation
     }
 
     private void moveParticle( Vector2 force ) {
-        System.out.println( particle.getPos() );
+        // System.out.println( particle.getPos() );
         // This method uses Verlet integration
         Vector2 acceleration = Vector2.div( force, particle.getM() ); // a = (F / m)
         particle.setAcc( acceleration );
@@ -103,8 +107,17 @@ public class ParticlePropagation
     }
 
     public boolean isDone() {
-        // TODO: implement exit condition
-        return false;
+        // DEBUG
+        if (this.isDone || outOfBounds()) {
+            System.out.println("Exit condition:\n- Got too close to a crystal particle: " + this.isDone + "\n- Got out of bounds: "+ outOfBounds());
+        }
+
+        return this.isDone || outOfBounds();
+    }
+
+    private boolean outOfBounds() {
+        Vector2 pos = this.particle.getPos();
+        return pos.getX() < -D || pos.getX() > L || pos.getY() < 0 || pos.getY() > L;
     }
 
     public void saveMovement() {
