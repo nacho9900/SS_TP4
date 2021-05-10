@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class App
 {
@@ -45,25 +46,27 @@ public class App
 
     //2.2
     private static void energyThroughDifferentDts() {
-        final List<Double> dTs = Arrays.asList( 5e-14, 1e-14, 5e-15 );
+        final List<Double> dTs = Arrays.asList( 1e-13, 5e-14, 1e-14 );
+        final double maxDt = dTs.stream().reduce( 0.0, ( a, b ) -> a > b ? a : b );
         final int experimentsCount = 10;
         final Vector2 v = new Vector2( 10e3, 100e3 );
         double mass = 1e-27;
         double D = 1e-8;
 
         Random random = new Random();
+        List<Integer> seeds = new LinkedList<>();
+        for ( int i = 0; i < experimentsCount; i++ ) {
+            seeds.add( random.nextInt() );
+        }
 
         for ( double dt : dTs ) {
             final Map<Integer, Values> results = new HashMap<>();
+            for ( int seed : seeds ) {
+                System.out.printf( "{ seed: %d, dt: %s}%n", seed, dt );
 
-            for ( int i = 0; i < experimentsCount; i++ ) {
-                if ( i % 10 == 0 ) {
-                    System.out.println( i );
-                }
-
-                ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dt, random.nextInt() );
-                particlePropagation.run(false);
-                int index = 0;
+                ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dt, seed );
+                particlePropagation.run( false );
+                int index = 1;
                 for ( double deltaEnergy : particlePropagation.getDeltaEnergyThroughTime() ) {
                     Values values;
                     if ( !results.containsKey( index ) ) {
@@ -80,37 +83,37 @@ public class App
                 }
             }
 
-            App.generateEnergyThoughtTimeCsv( dt, results );
+            App.generateEnergyThoughtTimeCsv( dt, maxDt, results );
         }
     }
 
-    private static void generateEnergyThoughtTimeCsv( double dt, Map<Integer, Values> result ) {
+    private static void generateEnergyThoughtTimeCsv( double dt, double maxDt, Map<Integer, Values> result ) {
         String csvFileName = String.format( "energy_%s", Double.toString( dt ).replace( ".", "" ) );
 
         File csvFile = new File( csvFileName + ".csv" );
 
         try ( BufferedWriter writer = new BufferedWriter( new FileWriter( csvFile ) ) ) {
             StringBuilder builder = new StringBuilder();
-
-            double time = dt;
-            int timeIndex = 1;
-            for ( Values values : result.values() ) {
-                final double mean = values.getMean();
-                final double error = Values.getStandardError( values, mean );
+            double ratio = maxDt / dt;
+            int timeIndex = (int) ratio;
+            int index = 1;
+            while ( result.containsKey( timeIndex ) ) {
+                final double mean = result.get( timeIndex ).getMean();
+                final double error = Values.getStandardError( result.get( timeIndex ), mean );
 
                 if ( error == 0 ) {
                     break;
                 }
 
-                builder.append( time )
+                builder.append( index * maxDt )
                        .append( "," )
                        .append( mean )
                        .append( "," )
                        .append( error )
                        .append( System.lineSeparator() );
 
-                timeIndex++;
-                time = timeIndex * dt;
+                index++;
+                timeIndex = (int) ( ratio * index );
             }
 
             writer.write( builder.toString() );
