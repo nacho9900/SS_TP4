@@ -34,8 +34,9 @@ public class App
         int seed = 6432121;
 
         // defaultRun(mass, D, dT, seed, v);
-        energyThroughDifferentDts();
+        // energyThroughDifferentDts();
         // particleLengthsByVelocity(mass, D, dT, seed, v);
+        endStatesByVelocity(mass, D, dT, seed, v);
     }
 
     private static void defaultRun(double mass, double D, double dT, int seed, Vector2 v) {
@@ -127,7 +128,7 @@ public class App
     private static void particleLengthsByVelocity(double mass, double D, double dT, int seed, Vector2 normalVelocity) {
         // Variable conditions
         int samplePoints = 100; // amount of point equally distributed between L/2-D and L/2+D
-        double[] velocityModulos = new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
         
         normalVelocity = Vector2.div(normalVelocity, Vector2.abs(normalVelocity));  // normalization
         for (double vM : velocityModulos) {
@@ -179,6 +180,82 @@ public class App
                         .append( System.lineSeparator() );
                     i++;
                 }
+                writer.write( builder.toString() );
+                writer.flush();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //2.4
+    private static void endStatesByVelocity(double mass, double D, double dT, int seed, Vector2 normalVelocity) {
+        // Variable conditions
+        int seedAmounts = 100;
+        double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+        
+        normalVelocity = Vector2.div(normalVelocity, Vector2.abs(normalVelocity));  // normalization
+        for (double vM : velocityModulos) {
+            List<EndState> endStates = new LinkedList<>();
+            Vector2 vel = Vector2.dot(normalVelocity, vM);
+            for (int i = 0; i < seedAmounts; i++) {
+                ParticlePropagation pp = new ParticlePropagation(D, vel, mass, dT, i);
+                EndState endState = pp.run(false);
+                // System.out.print(pp.calculatePathLength().stream().reduce(0.0, Double::sum) + ", ");
+                endStates.add(endState);
+            }
+            
+            int leftWall = 0;
+            int rightWall = 0;
+            int upperWall = 0;
+            int lowerWall = 0;
+            int inside = 0;
+            for (EndState endState : endStates) {
+                switch (endState) {
+                    case LEFT_WALL:
+                        leftWall++;
+                        break;
+                    case RIGHT_WALL:
+                        rightWall++;
+                        break;
+                    case UPPER_WALL:
+                        upperWall++;
+                        break;
+                    case LOWER_WALL:
+                        lowerWall++;
+                        break;
+                    case INSIDE:
+                        inside++;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            // rightWall /= listOfEndStates.size();
+            // leftWall /= listOfEndStates.size();
+            // upperWall /= listOfEndStates.size();
+            // lowerWall /= listOfEndStates.size();
+            // inside /= listOfEndStates.size();
+            System.out.println(rightWall + " " + leftWall + " " + upperWall + " " + lowerWall + " " + inside);
+
+            // Output to file
+            String dumpFilename = "ej2_4/vM_" + (int)vM;
+
+            dumpFilename = dumpFilename.replace( ".", "" );
+            File dump = new File( dumpFilename + ".csv" );
+
+            try ( BufferedWriter writer = new BufferedWriter( new FileWriter( dump ) ) ) {
+                StringBuilder builder = new StringBuilder();
+                builder.append( leftWall )
+                        .append( System.lineSeparator() )
+                        .append( rightWall )
+                        .append( System.lineSeparator() )
+                        .append( upperWall )
+                        .append( System.lineSeparator() )
+                        .append( lowerWall )
+                        .append( System.lineSeparator() )
+                        .append( inside );
                 writer.write( builder.toString() );
                 writer.flush();
             }

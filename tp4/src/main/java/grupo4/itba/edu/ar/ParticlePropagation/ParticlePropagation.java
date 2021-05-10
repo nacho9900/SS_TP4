@@ -156,7 +156,7 @@ public class ParticlePropagation
 
     private EndState outOfBounds() {
         Vector2 pos = this.particle.getPos();
-        if ( pos.getX() < -D ) {
+        if ( pos.getX() < -2 * D ) {
             return EndState.LEFT_WALL;
         }
         else if ( pos.getX() > L ) {
@@ -173,6 +173,7 @@ public class ParticlePropagation
 
     public List<Double> calculatePathLength() {
         Vector2 prevPos = null;
+        double totalLength = 0.0;
         List<Double> lengths = new LinkedList<>();
         for ( Vector2 pos : particlePositions ) {
             if ( prevPos == null ) {
@@ -180,7 +181,8 @@ public class ParticlePropagation
                 continue;
             }
 
-            lengths.add( Vector2.abs( Vector2.sub( pos, prevPos ) ) );
+            totalLength += Vector2.abs( Vector2.sub( pos, prevPos ) );
+            lengths.add( totalLength );
         }
 
         return lengths;
