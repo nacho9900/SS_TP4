@@ -1,6 +1,9 @@
 package grupo4.itba.edu.ar;
 
-import grupo4.itba.edu.ar.Oscilator.Oscilator;
+import grupo4.itba.edu.ar.Model.EndState;
+import grupo4.itba.edu.ar.Model.Vector2;
+import grupo4.itba.edu.ar.ParticlePropagation.ParticlePropagation;
+import grupo4.itba.edu.ar.util.Values;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,6 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -26,17 +31,16 @@ public class App
         // Variable conditions
         double dT = 1e-13;
         int seed = 6432121;
-        //        ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
-        //
-        //        EndState state = particlePropagation.run();
-        //        System.out.println( state );
 
-        //For 2.2 - Energy trough time
-        App.energyThroughDifferentDts();
+        // defaultRun(mass, D, dT, seed, v);
+        energyThroughDifferentDts();
+        // particleLengthsByVelocity(mass, D, dT, seed, v);
+    }
 
-        // For 2.3 - Calculates length for each dT
-        // List<Double> lengths = particlePropagation.calculatePathLength();
-        // System.out.println("Particle path length: " + lengths.stream().reduce(0d, (x, y) -> x + y));
+    private static void defaultRun(double mass, double D, double dT, int seed, Vector2 v) {
+        ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
+        EndState state = particlePropagation.run(true);
+        System.out.println(state);
     }
 
     //2.2
@@ -113,6 +117,71 @@ public class App
         }
         catch ( IOException e ) {
             e.printStackTrace();
+        }
+    }
+
+    //2.3
+    private static void particleLengthsByVelocity(double mass, double D, double dT, int seed, Vector2 normalVelocity) {
+        // Variable conditions
+        int samplePoints = 100; // amount of point equally distributed between L/2-D and L/2+D
+        double[] velocityModulos = new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        
+        normalVelocity = Vector2.div(normalVelocity, Vector2.abs(normalVelocity));  // normalization
+        for (double vM : velocityModulos) {
+            List<List<Double>> listOfLengths = new LinkedList<>();
+            Vector2 vel = Vector2.dot(normalVelocity, vM);
+            for (int i = 0; i < samplePoints; i++) {
+                double relativePos = i/samplePoints;
+                ParticlePropagation pp = new ParticlePropagation(D, vel, mass, dT, seed, relativePos);
+                pp.run(false);
+                List<Double> lengths = pp.calculatePathLength();
+                listOfLengths.add(lengths);
+            }
+            
+            List<Double> avgLengths = new LinkedList<>();
+            List<Double> stdLengths = new LinkedList<>();
+            int maxSize = listOfLengths.stream().map(lengths -> lengths.size()).max(Comparator.naturalOrder()).get();
+            for (int i = 0; i < maxSize; i++) {
+                List<Double> valuesAtI = new LinkedList<>();
+                for (List<Double> lengths : listOfLengths) {
+                    if (lengths.size() >= i) {
+                        valuesAtI.add(lengths.get(i));
+                    }
+                }
+                Double avg = valuesAtI.stream().reduce((x, y) -> x + y).get() / valuesAtI.size();
+                Double std = Math.sqrt(valuesAtI.stream()
+                                                .map( v -> Math.pow(v-avg, 2) )
+                                                .reduce((v1, v2) -> v1 + v2).get() / valuesAtI.size());
+                avgLengths.add(avg);
+                stdLengths.add(std);
+            }
+
+            // System.out.println(avgLengths);
+            // System.out.println(stdLengths);
+
+            // Output to file
+            String dumpFilename = "ej2_3/vM_" + (int)vM;
+
+            dumpFilename = dumpFilename.replace( ".", "" );
+            File dump = new File( dumpFilename + ".csv" );
+
+            try ( BufferedWriter writer = new BufferedWriter( new FileWriter( dump ) ) ) {
+                StringBuilder builder = new StringBuilder();
+                for(int i = 0; i < avgLengths.size(); i++) {
+                    builder.append( (double)i * dT )
+                        .append( " " )
+                        .append( avgLengths.get(i) )
+                        .append( " " )
+                        .append( stdLengths.get(i) )
+                        .append( System.lineSeparator() );
+                    i++;
+                }
+                writer.write( builder.toString() );
+                writer.flush();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
         }
     }
 }

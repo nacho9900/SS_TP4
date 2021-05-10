@@ -18,7 +18,7 @@ import lombok.Getter;
 public class ParticlePropagation
 {
     private final List<Particle> crystal;
-    private final Particle particle;
+    private Particle particle;
     private Vector2 prevPos;
     private final double D; //distance between particles in crystal
     private final double L; //crystal width/height
@@ -42,7 +42,6 @@ public class ParticlePropagation
         this.time = 0;
         this.seed = seed;
         this.particlePositions = new LinkedList<>();
-        // TODO: verify that a negative x is not an issue
         Random r = new Random( seed );
         double upperBoundary = ( L / 2 ) + D;
         double lowerBoundary = ( L / 2 ) - D;
@@ -62,16 +61,23 @@ public class ParticlePropagation
         this.startingTotalEnergy = particle.getTotalEnergy( crystal );
     }
 
-    public EndState run( boolean saveMovements ) {
+    public ParticlePropagation( double D, Vector2 v, double mass, double dT, int seed, double relativePos ) {
+        this(D, v, mass, dT, seed);
+
+        // Replace particle position to be in the range of [L/2-D, L/2+D] (according to the percentage `relativePos`)
+        particle = new Particle( new Vector2(-D, relativePos * 2 * D + L/2-D), v, mass, this.Q );
+        particlePositions.set(0, particle.getPos());
+    }
+
+    public EndState run(boolean saveMovement) {
         EndState state = EndState.NOT_DONE;
         while ( state == EndState.NOT_DONE ) {
             state = nextStep();
         }
 
-        if ( saveMovements ) {
+        if (saveMovement) {
             saveMovement();
         }
-
         return state;
     }
 
