@@ -13,13 +13,13 @@ with open('./tp4/energy_10E-13.csv') as f:
     y1 = [float(line.split(',')[1]) for line in lines]
     yerr1 = [float(line.split(',')[2]) for line in lines]
 
-with open('./tp4/energy_50E-14.csv') as f:
+with open('./tp4/energy_10E-14.csv') as f:
     lines = f.readlines()
     x2 = [float(line.split(',')[0]) for line in lines]
     y2 = [float(line.split(',')[1]) for line in lines]
     yerr2 = [float(line.split(',')[2]) for line in lines]
 
-with open('./tp4/energy_10E-14.csv') as f:
+with open('./tp4/energy_10E-15.csv') as f:
     lines = f.readlines()
     x3 = [float(line.split(',')[0]) for line in lines]
     y3 = [float(line.split(',')[1]) for line in lines]
@@ -55,8 +55,8 @@ ax1.set_xlabel('Tiempo (s)', fontsize=20)
 ax1.set_ylabel("Diferencia de Energía Total (J)", fontsize=20)
 # ax1.errorbar(x, y, yerr=yerr, fmt='-o', label="1e-13")
 ax1.errorbar(x1, y1, yerr=yerr1, fmt='-o', label="Δt = 10^-13")
-ax1.errorbar(x2, y2, yerr=yerr2, fmt='-o', label="Δt = 5x10^-14")
-ax1.errorbar(x3, y3, yerr=yerr3, fmt='-o', label="Δt = 10^-14")
+ax1.errorbar(x2, y2, yerr=yerr2, fmt='-o', label="Δt = 10^-14")
+ax1.errorbar(x3, y3, yerr=yerr3, fmt='-o', label="Δt = 10^-15")
 # ax1.errorbar(x4,y4,yerr=yerr4,fmt='-o', label=130)
 # ax1.errorbar(x5,y5,yerr=yerr5,fmt='-o', label=0.8)
 

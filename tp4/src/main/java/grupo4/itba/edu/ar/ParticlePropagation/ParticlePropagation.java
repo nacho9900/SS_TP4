@@ -11,7 +11,7 @@ import java.util.Random;
 
 import grupo4.itba.edu.ar.Model.EndState;
 import grupo4.itba.edu.ar.Model.Particle;
-import grupo4.itba.edu.ar.Model.Vector2;
+import grupo4.itba.edu.ar.Model.Vector;
 import grupo4.itba.edu.ar.util.MathHelper;
 import lombok.Getter;
 
@@ -19,12 +19,11 @@ public class ParticlePropagation
 {
     private final List<Particle> crystal;
     private Particle particle;
-    private Vector2 prevPos;
     private final double D; //distance between particles in crystal
     private final double L; //crystal width/height
     private final double dT; // delta time, smallest time unit
     private double time;
-    private final List<Vector2> particlePositions;
+    private final List<Vector> particlePositions;
     private boolean firstIteration = true;
     private final double Q = 1e-19;
     private final double k = 1e10;
@@ -34,7 +33,7 @@ public class ParticlePropagation
     private final List<Double> deltaEnergyThroughTime;
     private final double startingTotalEnergy;
 
-    public ParticlePropagation( double D, Vector2 v, double mass, double dT, int seed ) {
+    public ParticlePropagation( double D, Vector v, double mass, double dT, int seed ) {
         int N = 16; // amount of particles per row/column
         this.D = D;
         this.L = D * ( N - 1 );
@@ -46,103 +45,102 @@ public class ParticlePropagation
         double upperBoundary = ( L / 2 ) + D;
         double lowerBoundary = ( L / 2 ) - D;
         double y = MathHelper.randBetween( r, lowerBoundary, upperBoundary );
-        particle = new Particle( new Vector2( -D, y ), v, mass, this.Q );
+        particle = new Particle( new Vector( -D, y ), v, mass, this.Q );
 
         crystal = new LinkedList<>();
         for ( int i = 0; i < N; i++ ) {
             for ( int j = 0; j < N; j++ ) {
                 boolean isPositiveCharge = ( i + j ) % 2 == 0;
-                crystal.add( new Particle( new Vector2( i * D, j * D ), new Vector2( 0, 0 ), mass,
+                crystal.add( new Particle( new Vector( i * D, j * D ), new Vector( 0, 0 ), mass,
                                            isPositiveCharge ? this.Q : -1 * this.Q ) );
             }
         }
-        particlePositions.add( particle.getPos() );
+        particlePositions.add( particle.getPosition() );
         deltaEnergyThroughTime = new ArrayList<>();
         this.startingTotalEnergy = particle.getTotalEnergy( crystal );
     }
 
-    public ParticlePropagation( double D, Vector2 v, double mass, double dT, int seed, double relativePos ) {
-        this(D, v, mass, dT, seed);
+    public ParticlePropagation( double D, Vector v, double mass, double dT, int seed, double relativePos ) {
+        this( D, v, mass, dT, seed );
 
         // Replace particle position to be in the range of [L/2-D, L/2+D] (according to the percentage `relativePos`)
-        particle = new Particle( new Vector2(-D, relativePos * 2 * D + L/2-D), v, mass, this.Q );
-        particlePositions.set(0, particle.getPos());
+        particle = new Particle( new Vector( -D, relativePos * 2 * D + L / 2 - D ), v, mass, this.Q );
+        particlePositions.set( 0, particle.getPosition() );
     }
 
-    public EndState run(boolean saveMovement) {
+    public EndState run( boolean saveMovement ) {
         EndState state = EndState.NOT_DONE;
         while ( state == EndState.NOT_DONE ) {
             state = nextStep();
         }
 
-        if (saveMovement) {
+        if ( saveMovement ) {
             saveMovement();
         }
         return state;
     }
 
     private EndState nextStep() {
-        time += dT;
+        this.time += this.dT;
 
-        Vector2 force = getForce();
-        moveParticle( force );
+        Vector force = this.getForce();
+        this.moveParticle( force );
 
-        EndState state = getCurrentState();
+        EndState state = this.getCurrentState();
         if ( state == EndState.NOT_DONE ) {
-            particlePositions.add( particle.getPos() );
+            this.particlePositions.add( this.particle.getPosition() );
         }
 
-        deltaEnergyThroughTime.add( Math.abs( startingTotalEnergy - particle.getTotalEnergy( crystal ) ) );
+        this.deltaEnergyThroughTime.add(
+                Math.abs( this.startingTotalEnergy - this.particle.getTotalEnergy( this.crystal ) ) );
         return state;
     }
 
-    private Vector2 getForce() {
-        Vector2 force = new Vector2( 0, 0 );
+    private Vector getForce() {
+        Vector force = new Vector( 0, 0 );
         for ( Particle crystalParticle : crystal ) {
             force.add( getCrystalForce( crystalParticle ) );
         }
-        force = Vector2.dot( force, this.Q * this.k );
+        force = Vector.dot( force, this.Q * this.k );
         return force;
     }
 
-    private Vector2 getCrystalForce( Particle crystalParticle ) {
-        Vector2 distance = Vector2.sub( particle.getPos(), crystalParticle.getPos() );
-        if ( Vector2.abs( distance ) < this.D * 0.01 ) {
+    private Vector getCrystalForce( Particle crystalParticle ) {
+        Vector distance = Vector.sub( particle.getPosition(), crystalParticle.getPosition() );
+        if ( Vector.abs( distance ) < this.D * 0.01 ) {
             this.collidedInside = true;
         }
-        Vector2 unitVector = Vector2.div( distance, Vector2.abs( distance ) );
-        Vector2 force = Vector2.dot( unitVector,
-                                     ( crystalParticle.getCharge() ) / Math.pow( Vector2.abs( distance ), 2 ) );
+        Vector unitVector = Vector.div( distance, Vector.abs( distance ) );
+        Vector force = Vector.dot( unitVector,
+                                   ( crystalParticle.getCharge() ) / Math.pow( Vector.abs( distance ), 2 ) );
         // acceleration = force * particle.getX() / -mass;
         return force;
     }
 
-    private void moveParticle( Vector2 force ) {
+    private void moveParticle( Vector force ) {
         // This method uses Verlet integration
-        Vector2 acceleration = Vector2.div( force, particle.getM() ); // a = (F / m)
-        particle.setAcc( acceleration );
+        Vector acceleration = Vector.div( force, particle.getM() ); // a = (F / m)
+        this.particle.setAcceleration( acceleration );
 
-        Vector2 velocity = particle.getVel();
-        Vector2 position = particle.getPos();
-
-        if ( firstIteration ) {
-            particle.setVel( Vector2.add( velocity, Vector2.dot( particle.getAcc(), dT ) ) );
+        if ( this.firstIteration ) {
+            Vector velocity = Vector.add( particle.getVelocity(), Vector.dot( acceleration, dT ) );
+            this.particle.setVelocity( velocity );
             // v1 = v0 + a * dt
-            particle.setPos( Vector2.add( position, Vector2.add( Vector2.dot( particle.getVel(), dT ),
-                                                                 Vector2.dot( particle.getAcc(),
-                                                                              Math.pow( dT, 2 ) / 2 ) ) ) );
+            Vector displacedDistance = Vector.add( Vector.dot( velocity, dT ),
+                                                   Vector.dot( acceleration, Math.pow( this.dT, 2 ) / 2.0 ) );
+            Vector position = Vector.add( particle.getPosition(), displacedDistance );
+            particle.setPosition( position );
             // ri =  ri-1 + vi.dt + a. (dt^2 / 2)
-            firstIteration = false;
+            this.firstIteration = false;
         }
         else {
-            particle.setVel( Vector2.add( particle.getVel(), Vector2.dot( particle.getAcc(), dT ) ) );
-            // vi+1 = vi + a * dt
-            particle.setPos( Vector2.add( Vector2.sub( Vector2.dot( particle.getPos(), 2 ), prevPos ),
-                                          Vector2.dot( particle.getAcc(), Math.pow( dT, 2 ) ) ) );
-
+            Vector previousPosition = particlePositions.get( particlePositions.size() - 2 );
+            Vector position = Vector.add( Vector.sub( Vector.dot( particle.getPosition(), 2 ), previousPosition ),
+                                          Vector.dot( acceleration, Math.pow( this.dT, 2 ) ) );
+            particle.setPosition( position );
+            Vector velocity = Vector.dot( Vector.sub( position, previousPosition ), 1 / ( 2 * this.dT ) );
+            particle.setVelocity( velocity );
         }
-
-        prevPos = particle.getPos();
     }
 
     private EndState getCurrentState() {
@@ -155,7 +153,7 @@ public class ParticlePropagation
     }
 
     private EndState outOfBounds() {
-        Vector2 pos = this.particle.getPos();
+        Vector pos = this.particle.getPosition();
         if ( pos.getX() < -2 * D ) {
             return EndState.LEFT_WALL;
         }
@@ -172,16 +170,16 @@ public class ParticlePropagation
     }
 
     public List<Double> calculatePathLength() {
-        Vector2 prevPos = null;
+        Vector prevPos = null;
         double totalLength = 0.0;
         List<Double> lengths = new LinkedList<>();
-        for ( Vector2 pos : particlePositions ) {
+        for ( Vector pos : particlePositions ) {
             if ( prevPos == null ) {
                 prevPos = pos;
                 continue;
             }
 
-            totalLength += Vector2.abs( Vector2.sub( pos, prevPos ) );
+            totalLength += Vector.abs( Vector.sub( pos, prevPos ) );
             lengths.add( totalLength );
         }
 
@@ -199,9 +197,11 @@ public class ParticlePropagation
         String greenString = " 0 1 0";
 
         for ( Particle crystalParticle : crystal ) {
-            crystalStringBuilder.append( crystalParticle.getPos().getX() )
+            crystalStringBuilder.append( crystalParticle.getPosition()
+                                                        .getX() )
                                 .append( " " )
-                                .append( crystalParticle.getPos().getY() )
+                                .append( crystalParticle.getPosition()
+                                                        .getY() )
                                 .append( " " )
                                 .append( "1.0E-9" )
                                 .append( crystalParticle.getCharge() > 0 ? redString : blueString )
@@ -213,9 +213,11 @@ public class ParticlePropagation
         try ( BufferedWriter writer = new BufferedWriter( new FileWriter( dump ) ) ) {
             StringBuilder builder = new StringBuilder();
 
-            for ( Vector2 pos : particlePositions ) {
+            for ( Vector pos : particlePositions ) {
                 builder.setLength( 0 );
-                builder.append( crystal.size() + 1 ).append( System.lineSeparator() ).append( System.lineSeparator() );
+                builder.append( crystal.size() + 1 )
+                       .append( System.lineSeparator() )
+                       .append( System.lineSeparator() );
                 builder.append( crystalString );
                 builder.append( pos.getX() )
                        .append( " " )

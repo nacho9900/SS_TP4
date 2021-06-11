@@ -1,7 +1,7 @@
 package grupo4.itba.edu.ar;
 
 import grupo4.itba.edu.ar.Model.EndState;
-import grupo4.itba.edu.ar.Model.Vector2;
+import grupo4.itba.edu.ar.Model.Vector;
 import grupo4.itba.edu.ar.ParticlePropagation.ParticlePropagation;
 import grupo4.itba.edu.ar.util.Values;
 
@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class App
 {
@@ -25,7 +24,7 @@ public class App
         // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
-        Vector2 v = new Vector2( 10e3, 100e3 );
+        Vector v = new Vector( 10e3, 100e3 );
         double mass = 1e-27;
         double D = 1e-8;
 
@@ -34,12 +33,12 @@ public class App
         int seed = 6432121;
 
         // defaultRun(mass, D, dT, seed, v);
-        // energyThroughDifferentDts();
+         energyThroughDifferentDts();
         // particleLengthsByVelocity(mass, D, dT, seed, v);
-        endStatesByVelocity(mass, D, dT, seed, v);
+        // endStatesByVelocity(mass, D, dT, seed, v);
     }
 
-    private static void defaultRun(double mass, double D, double dT, int seed, Vector2 v) {
+    private static void defaultRun(double mass, double D, double dT, int seed, Vector v) {
         ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
         EndState state = particlePropagation.run(true);
         System.out.println(state);
@@ -47,10 +46,10 @@ public class App
 
     //2.2
     private static void energyThroughDifferentDts() {
-        final List<Double> dTs = Arrays.asList( 1e-13, 5e-14, 1e-14 );
+        final List<Double> dTs = Arrays.asList( 1e-13, 1e-14, 1e-15 );
         final double maxDt = dTs.stream().reduce( 0.0, ( a, b ) -> a > b ? a : b );
         final int experimentsCount = 10;
-        final Vector2 v = new Vector2( 10e3, 100e3 );
+        final Vector velocity = new Vector( 10e3, 0 );
         double mass = 1e-27;
         double D = 1e-8;
 
@@ -65,7 +64,7 @@ public class App
             for ( int seed : seeds ) {
                 System.out.printf( "{ seed: %d, dt: %s}%n", seed, dt );
 
-                ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dt, seed );
+                ParticlePropagation particlePropagation = new ParticlePropagation( D, velocity, mass, dt, seed );
                 particlePropagation.run( false );
                 int index = 1;
                 for ( double deltaEnergy : particlePropagation.getDeltaEnergyThroughTime() ) {
@@ -125,15 +124,15 @@ public class App
     }
 
     //2.3
-    private static void particleLengthsByVelocity(double mass, double D, double dT, int seed, Vector2 normalVelocity) {
+    private static void particleLengthsByVelocity(double mass, double D, double dT, int seed, Vector normalVelocity) {
         // Variable conditions
         int samplePoints = 100; // amount of point equally distributed between L/2-D and L/2+D
         double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
         
-        normalVelocity = Vector2.div(normalVelocity, Vector2.abs(normalVelocity));  // normalization
+        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
         for (double vM : velocityModulos) {
             List<List<Double>> listOfLengths = new LinkedList<>();
-            Vector2 vel = Vector2.dot(normalVelocity, vM);
+            Vector vel = Vector.dot( normalVelocity, vM);
             for (int i = 0; i < samplePoints; i++) {
                 double relativePos = i/samplePoints;
                 ParticlePropagation pp = new ParticlePropagation(D, vel, mass, dT, seed, relativePos);
@@ -190,15 +189,15 @@ public class App
     }
 
     //2.4
-    private static void endStatesByVelocity(double mass, double D, double dT, int seed, Vector2 normalVelocity) {
+    private static void endStatesByVelocity(double mass, double D, double dT, int seed, Vector normalVelocity) {
         // Variable conditions
         int seedAmounts = 100;
         double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
         
-        normalVelocity = Vector2.div(normalVelocity, Vector2.abs(normalVelocity));  // normalization
+        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
         for (double vM : velocityModulos) {
             List<EndState> endStates = new LinkedList<>();
-            Vector2 vel = Vector2.dot(normalVelocity, vM);
+            Vector vel = Vector.dot( normalVelocity, vM);
             for (int i = 0; i < seedAmounts; i++) {
                 ParticlePropagation pp = new ParticlePropagation(D, vel, mass, dT, i);
                 EndState endState = pp.run(false);
