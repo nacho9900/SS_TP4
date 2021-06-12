@@ -33,21 +33,22 @@ public class App
         int seed = 6432121;
 
         // defaultRun(mass, D, dT, seed, v);
-         energyThroughDifferentDts();
+        energyThroughDifferentDts();
         // particleLengthsByVelocity(mass, D, dT, seed, v);
         // endStatesByVelocity(mass, D, dT, seed, v);
     }
 
-    private static void defaultRun(double mass, double D, double dT, int seed, Vector v) {
+    private static void defaultRun( double mass, double D, double dT, int seed, Vector v ) {
         ParticlePropagation particlePropagation = new ParticlePropagation( D, v, mass, dT, seed );
-        EndState state = particlePropagation.run(true);
-        System.out.println(state);
+        EndState state = particlePropagation.run( true );
+        System.out.println( state );
     }
 
     //2.2
     private static void energyThroughDifferentDts() {
-        final List<Double> dTs = Arrays.asList( 1e-13, 1e-14, 1e-15 );
-        final double maxDt = dTs.stream().reduce( 0.0, ( a, b ) -> a > b ? a : b );
+        final List<Double> dTs = Arrays.asList( 1e-15, 1e-16, 1e-17 );
+        final double maxDt = dTs.stream()
+                                .reduce( 0.0, ( a, b ) -> a > b ? a : b );
         final int experimentsCount = 10;
         final Vector velocity = new Vector( 10e3, 0 );
         double mass = 1e-27;
@@ -77,7 +78,8 @@ public class App
                         values = results.get( index );
                     }
 
-                    values.getValues().add( deltaEnergy );
+                    values.getValues()
+                          .add( deltaEnergy );
 
                     index++;
                 }
@@ -88,7 +90,8 @@ public class App
     }
 
     private static void generateEnergyThoughtTimeCsv( double dt, double maxDt, Map<Integer, Values> result ) {
-        String csvFileName = String.format( "energy_%s", Double.toString( dt ).replace( ".", "" ) );
+        String csvFileName = String.format( "energy_%s", Double.toString( dt )
+                                                               .replace( ".", "" ) );
 
         File csvFile = new File( csvFileName + ".csv" );
 
@@ -98,7 +101,8 @@ public class App
             int timeIndex = (int) ratio;
             int index = 1;
             while ( result.containsKey( timeIndex ) ) {
-                final double mean = result.get( timeIndex ).getMean();
+                final double mean = result.get( timeIndex )
+                                          .getMean();
                 final double error = Values.getStandardError( result.get( timeIndex ), mean );
 
                 if ( error == 0 ) {
@@ -124,59 +128,65 @@ public class App
     }
 
     //2.3
-    private static void particleLengthsByVelocity(double mass, double D, double dT, int seed, Vector normalVelocity) {
+    private static void particleLengthsByVelocity( double mass, double D, double dT, int seed, Vector normalVelocity ) {
         // Variable conditions
         int samplePoints = 100; // amount of point equally distributed between L/2-D and L/2+D
-        double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
-        
-        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
-        for (double vM : velocityModulos) {
+        double[] velocityModulos = new double[] {5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+
+        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity ) );  // normalization
+        for ( double vM : velocityModulos ) {
             List<List<Double>> listOfLengths = new LinkedList<>();
-            Vector vel = Vector.dot( normalVelocity, vM);
-            for (int i = 0; i < samplePoints; i++) {
-                double relativePos = i/samplePoints;
-                ParticlePropagation pp = new ParticlePropagation(D, vel, mass, dT, seed, relativePos);
-                pp.run(false);
+            Vector vel = Vector.dot( normalVelocity, vM );
+            for ( int i = 0; i < samplePoints; i++ ) {
+                double relativePos = i / samplePoints;
+                ParticlePropagation pp = new ParticlePropagation( D, vel, mass, dT, seed, relativePos );
+                pp.run( false );
                 List<Double> lengths = pp.calculatePathLength();
-                listOfLengths.add(lengths);
+                listOfLengths.add( lengths );
             }
-            
+
             List<Double> avgLengths = new LinkedList<>();
             List<Double> stdLengths = new LinkedList<>();
-            int maxSize = listOfLengths.stream().map(lengths -> lengths.size()).max(Comparator.naturalOrder()).get();
-            for (int i = 0; i < maxSize; i++) {
+            int maxSize = listOfLengths.stream()
+                                       .map( lengths -> lengths.size() )
+                                       .max( Comparator.naturalOrder() )
+                                       .get();
+            for ( int i = 0; i < maxSize; i++ ) {
                 List<Double> valuesAtI = new LinkedList<>();
-                for (List<Double> lengths : listOfLengths) {
-                    if (lengths.size() >= i) {
-                        valuesAtI.add(lengths.get(i));
+                for ( List<Double> lengths : listOfLengths ) {
+                    if ( lengths.size() >= i ) {
+                        valuesAtI.add( lengths.get( i ) );
                     }
                 }
-                Double avg = valuesAtI.stream().reduce((x, y) -> x + y).get() / valuesAtI.size();
-                Double std = Math.sqrt(valuesAtI.stream()
-                                                .map( v -> Math.pow(v-avg, 2) )
-                                                .reduce((v1, v2) -> v1 + v2).get() / valuesAtI.size());
-                avgLengths.add(avg);
-                stdLengths.add(std);
+                Double avg = valuesAtI.stream()
+                                      .reduce( ( x, y ) -> x + y )
+                                      .get() / valuesAtI.size();
+                Double std = Math.sqrt( valuesAtI.stream()
+                                                 .map( v -> Math.pow( v - avg, 2 ) )
+                                                 .reduce( ( v1, v2 ) -> v1 + v2 )
+                                                 .get() / valuesAtI.size() );
+                avgLengths.add( avg );
+                stdLengths.add( std );
             }
 
             // System.out.println(avgLengths);
             // System.out.println(stdLengths);
 
             // Output to file
-            String dumpFilename = "ej2_3/vM_" + (int)vM;
+            String dumpFilename = "ej2_3/vM_" + (int) vM;
 
             dumpFilename = dumpFilename.replace( ".", "" );
             File dump = new File( dumpFilename + ".csv" );
 
             try ( BufferedWriter writer = new BufferedWriter( new FileWriter( dump ) ) ) {
                 StringBuilder builder = new StringBuilder();
-                for(int i = 0; i < avgLengths.size(); i++) {
-                    builder.append( (double)i * dT )
-                        .append( " " )
-                        .append( avgLengths.get(i) )
-                        .append( " " )
-                        .append( stdLengths.get(i) )
-                        .append( System.lineSeparator() );
+                for ( int i = 0; i < avgLengths.size(); i++ ) {
+                    builder.append( (double) i * dT )
+                           .append( " " )
+                           .append( avgLengths.get( i ) )
+                           .append( " " )
+                           .append( stdLengths.get( i ) )
+                           .append( System.lineSeparator() );
                     i++;
                 }
                 writer.write( builder.toString() );
@@ -189,29 +199,29 @@ public class App
     }
 
     //2.4
-    private static void endStatesByVelocity(double mass, double D, double dT, int seed, Vector normalVelocity) {
+    private static void endStatesByVelocity( double mass, double D, double dT, int seed, Vector normalVelocity ) {
         // Variable conditions
         int seedAmounts = 100;
-        double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
-        
-        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
-        for (double vM : velocityModulos) {
+        double[] velocityModulos = new double[] {5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+
+        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity ) );  // normalization
+        for ( double vM : velocityModulos ) {
             List<EndState> endStates = new LinkedList<>();
-            Vector vel = Vector.dot( normalVelocity, vM);
-            for (int i = 0; i < seedAmounts; i++) {
-                ParticlePropagation pp = new ParticlePropagation(D, vel, mass, dT, i);
-                EndState endState = pp.run(false);
+            Vector vel = Vector.dot( normalVelocity, vM );
+            for ( int i = 0; i < seedAmounts; i++ ) {
+                ParticlePropagation pp = new ParticlePropagation( D, vel, mass, dT, i );
+                EndState endState = pp.run( false );
                 // System.out.print(pp.calculatePathLength().stream().reduce(0.0, Double::sum) + ", ");
-                endStates.add(endState);
+                endStates.add( endState );
             }
-            
+
             int leftWall = 0;
             int rightWall = 0;
             int upperWall = 0;
             int lowerWall = 0;
             int inside = 0;
-            for (EndState endState : endStates) {
-                switch (endState) {
+            for ( EndState endState : endStates ) {
+                switch ( endState ) {
                     case LEFT_WALL:
                         leftWall++;
                         break;
@@ -236,10 +246,10 @@ public class App
             // upperWall /= listOfEndStates.size();
             // lowerWall /= listOfEndStates.size();
             // inside /= listOfEndStates.size();
-            System.out.println(rightWall + " " + leftWall + " " + upperWall + " " + lowerWall + " " + inside);
+            System.out.println( rightWall + " " + leftWall + " " + upperWall + " " + lowerWall + " " + inside );
 
             // Output to file
-            String dumpFilename = "ej2_4/vM_" + (int)vM;
+            String dumpFilename = "ej2_4/vM_" + (int) vM;
 
             dumpFilename = dumpFilename.replace( ".", "" );
             File dump = new File( dumpFilename + ".csv" );
@@ -247,14 +257,14 @@ public class App
             try ( BufferedWriter writer = new BufferedWriter( new FileWriter( dump ) ) ) {
                 StringBuilder builder = new StringBuilder();
                 builder.append( leftWall )
-                        .append( System.lineSeparator() )
-                        .append( rightWall )
-                        .append( System.lineSeparator() )
-                        .append( upperWall )
-                        .append( System.lineSeparator() )
-                        .append( lowerWall )
-                        .append( System.lineSeparator() )
-                        .append( inside );
+                       .append( System.lineSeparator() )
+                       .append( rightWall )
+                       .append( System.lineSeparator() )
+                       .append( upperWall )
+                       .append( System.lineSeparator() )
+                       .append( lowerWall )
+                       .append( System.lineSeparator() )
+                       .append( inside );
                 writer.write( builder.toString() );
                 writer.flush();
             }

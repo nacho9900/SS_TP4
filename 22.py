@@ -7,19 +7,19 @@ import numpy as np
 #     y = [float(line.split(',')[1]) for line in lines]
 #     yerr = [float(line.split(',')[2]) for line in lines]
 
-with open('./tp4/energy_10E-13.csv') as f:
+with open('./tp4/energy_10E-15.csv') as f:
     lines = f.readlines()
     x1 = [float(line.split(',')[0]) for line in lines]
     y1 = [float(line.split(',')[1]) for line in lines]
     yerr1 = [float(line.split(',')[2]) for line in lines]
 
-with open('./tp4/energy_10E-14.csv') as f:
+with open('./tp4/energy_10E-16.csv') as f:
     lines = f.readlines()
     x2 = [float(line.split(',')[0]) for line in lines]
     y2 = [float(line.split(',')[1]) for line in lines]
     yerr2 = [float(line.split(',')[2]) for line in lines]
 
-with open('./tp4/energy_10E-15.csv') as f:
+with open('./tp4/energy_10E-17.csv') as f:
     lines = f.readlines()
     x3 = [float(line.split(',')[0]) for line in lines]
     y3 = [float(line.split(',')[1]) for line in lines]
@@ -52,11 +52,11 @@ fig = plt.figure(figsize=(15, 10))
 ax1 = fig.add_subplot(111)
 # ax1.set_title("Neighbors Pair", fontsize=20)
 ax1.set_xlabel('Tiempo (s)', fontsize=20)
-ax1.set_ylabel("Diferencia de Energía Total (J)", fontsize=20)
+ax1.set_ylabel("dE (J)", fontsize=20)
 # ax1.errorbar(x, y, yerr=yerr, fmt='-o', label="1e-13")
-ax1.errorbar(x1, y1, yerr=yerr1, fmt='-o', label="Δt = 10^-13")
-ax1.errorbar(x2, y2, yerr=yerr2, fmt='-o', label="Δt = 10^-14")
-ax1.errorbar(x3, y3, yerr=yerr3, fmt='-o', label="Δt = 10^-15")
+ax1.errorbar(x1, y1, yerr=yerr1, fmt='-o', label=r"dt = $10^{-15}$s", alpha=0.7, linewidth=0.5, markersize=2)
+ax1.errorbar(x2, y2, yerr=yerr2, fmt='-o', label=r"dt = $10^{-16}$s", alpha=0.7, linewidth=0.5, markersize=2)
+ax1.errorbar(x3, y3, yerr=yerr3, fmt='-o', label=r"dt = $10^{-17}$s", alpha=0.7, linewidth=0.5, markersize=2)
 # ax1.errorbar(x4,y4,yerr=yerr4,fmt='-o', label=130)
 # ax1.errorbar(x5,y5,yerr=yerr5,fmt='-o', label=0.8)
 
@@ -83,7 +83,7 @@ plt.yticks(size=20)
 #         label.set_visible(False)
 
 plt.yscale("log")
-plt.xscale("log")
+# plt.xscale("log")
 
 plt.grid()
 plt.show()
