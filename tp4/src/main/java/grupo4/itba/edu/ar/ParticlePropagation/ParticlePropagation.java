@@ -179,8 +179,14 @@ public class ParticlePropagation
                 continue;
             }
 
-            totalLength += Vector.abs( Vector.sub( pos, prevPos ) );
+            Double len = Vector.abs( Vector.sub( pos, prevPos ) );
+            
+            // Acumulada
+            totalLength += len;
             lengths.add( totalLength );
+            
+            // Simple
+            // lengths.add( len );
         }
 
         return lengths;

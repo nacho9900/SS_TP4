@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
-import matplotlib
-import sys
 
-
-vMs = [i for i in range(5, 55, 5)]
+# vMs = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+vMs = [1, 50, 100, 150, 200, 250, 300, 350, 400, 450]
 for vM in vMs:
     fig = plt.figure(figsize=(15,10))
     ax1 = fig.add_subplot(111)
@@ -17,6 +15,7 @@ for vM in vMs:
     plt.legend( labels = [f'Izquierda - {y[0]}', f'Derecha - {y[1]}', f'Arriba - {y[2]}', f'Abajo - {y[3]}', f'Adentro - {y[4]}'], fontsize=27)
 
     fig1=plt.gcf()
+
+
     # plt.show()
-    plt.draw()
     plt.savefig(f'ej2_4/pie_vM{vM}.png')

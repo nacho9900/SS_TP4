@@ -24,18 +24,18 @@ public class App
         // Oscilator.OscilatorMethods.oscilatorVerlet();
         // Oscilator.OscilatorMethods.oscilatorBeeman();
 
-        Vector v = new Vector( 10e3, 100e3 );
+        Vector v = new Vector( 5e3, 0 );
         double mass = 1e-27;
         double D = 1e-8;
 
         // Variable conditions
         double dT = 1e-13;
-        int seed = 6432121;
+        int seed = 999;
 
         // defaultRun(mass, D, dT, seed, v);
         energyThroughDifferentDts();
-        // particleLengthsByVelocity(mass, D, dT, seed, v);
-        // endStatesByVelocity(mass, D, dT, seed, v);
+        // particleLengthsByVelocity(mass, D, dT, seed);
+        // endStatesByVelocity(mass, D, dT, seed);
     }
 
     private static void defaultRun( double mass, double D, double dT, int seed, Vector v ) {
@@ -128,13 +128,15 @@ public class App
     }
 
     //2.3
-    private static void particleLengthsByVelocity( double mass, double D, double dT, int seed, Vector normalVelocity ) {
+    private static void particleLengthsByVelocity(double mass, double D, double dT, int seed) {
         // Variable conditions
-        int samplePoints = 100; // amount of point equally distributed between L/2-D and L/2+D
-        double[] velocityModulos = new double[] {5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
-
-        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity ) );  // normalization
-        for ( double vM : velocityModulos ) {
+        int samplePoints = 100; // amount of points equally distributed between L/2-D and L/2+D
+        double[] velocityModulos = new double[]{1, 50, 100, 150, 200, 250, 300, 350, 400, 450};
+        // double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+        
+        Vector normalVelocity = new Vector( 1e+2 , 0 );
+        // normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
+        for (double vM : velocityModulos) {
             List<List<Double>> listOfLengths = new LinkedList<>();
             Vector vel = Vector.dot( normalVelocity, vM );
             for ( int i = 0; i < samplePoints; i++ ) {
@@ -173,7 +175,8 @@ public class App
             // System.out.println(stdLengths);
 
             // Output to file
-            String dumpFilename = "ej2_3/vM_" + (int) vM;
+            // String dumpFilename = "ej2_3/vM_" + (int)vM;
+            String dumpFilename = "ej2_3/acum_vM_" + (int)vM;
 
             dumpFilename = dumpFilename.replace( ".", "" );
             File dump = new File( dumpFilename + ".csv" );
@@ -199,13 +202,15 @@ public class App
     }
 
     //2.4
-    private static void endStatesByVelocity( double mass, double D, double dT, int seed, Vector normalVelocity ) {
+    private static void endStatesByVelocity(double mass, double D, double dT, int seed) {
         // Variable conditions
         int seedAmounts = 100;
-        double[] velocityModulos = new double[] {5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
-
-        normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity ) );  // normalization
-        for ( double vM : velocityModulos ) {
+        // double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+        double[] velocityModulos = new double[]{1, 50, 100, 150, 200, 250, 300, 350, 400, 450};
+        
+        Vector normalVelocity = new Vector( 1e+2 , 0 );
+        // normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
+        for (double vM : velocityModulos) {
             List<EndState> endStates = new LinkedList<>();
             Vector vel = Vector.dot( normalVelocity, vM );
             for ( int i = 0; i < seedAmounts; i++ ) {
