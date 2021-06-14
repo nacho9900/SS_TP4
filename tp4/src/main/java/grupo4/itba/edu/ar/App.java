@@ -29,7 +29,7 @@ public class App
         double D = 1e-8;
 
         // Variable conditions
-        double dT = 1e-13;
+        double dT = 1e-17;
         int seed = 999;
 
         // defaultRun(mass, D, dT, seed, v);
@@ -166,8 +166,8 @@ public class App
     //2.3
     private static void particleLengthsByVelocity(double mass, double D, double dT, int seed) {
         // Variable conditions
-        int samplePoints = 100; // amount of points equally distributed between L/2-D and L/2+D
-        double[] velocityModulos = new double[]{1, 50, 100, 150, 200, 250, 300, 350, 400, 450};
+        int samplePoints = 10; // amount of points equally distributed between L/2-D and L/2+D
+        double[] velocityModulos = new double[]{100, 150, 200, 250, 300, 350, 400, 450, 500, 550};
         // double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
         
         Vector normalVelocity = new Vector( 1e+2 , 0 );
@@ -176,6 +176,7 @@ public class App
             List<List<Double>> listOfLengths = new LinkedList<>();
             Vector vel = Vector.dot( normalVelocity, vM );
             for ( int i = 0; i < samplePoints; i++ ) {
+                System.out.printf( "{ vM: %f, dt: %s}%n", vM, dT );
                 double relativePos = i / samplePoints;
                 ParticlePropagation pp = new ParticlePropagation( D, vel, mass, dT, seed, relativePos );
                 pp.run( false );
@@ -242,13 +243,14 @@ public class App
         // Variable conditions
         int seedAmounts = 100;
         // double[] velocityModulos = new double[]{5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
-        double[] velocityModulos = new double[]{1, 50, 100, 150, 200, 250, 300, 350, 400, 450};
+        double[] velocityModulos = new double[]{100, 150, 200, 250, 300, 350, 400, 450, 500, 550};
         
         Vector normalVelocity = new Vector( 1e+2 , 0 );
         // normalVelocity = Vector.div( normalVelocity, Vector.abs( normalVelocity));  // normalization
         for (double vM : velocityModulos) {
             List<EndState> endStates = new LinkedList<>();
             Vector vel = Vector.dot( normalVelocity, vM );
+            System.out.printf( "{ seed: %d, dt: %s}%n", seed, dT );
             for ( int i = 0; i < seedAmounts; i++ ) {
                 ParticlePropagation pp = new ParticlePropagation( D, vel, mass, dT, i );
                 EndState endState = pp.run( false );
