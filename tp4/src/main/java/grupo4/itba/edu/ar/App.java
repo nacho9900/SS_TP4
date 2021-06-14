@@ -60,7 +60,9 @@ public class App
             seeds.add( random.nextInt() );
         }
 
+        final Map<Double, Values> io = new HashMap<>();
         for ( double dt : dTs ) {
+            io.put( dt, new Values() );
             final Map<Integer, Values> results = new HashMap<>();
             for ( int seed : seeds ) {
                 System.out.printf( "{ seed: %d, dt: %s}%n", seed, dt );
@@ -68,6 +70,9 @@ public class App
                 ParticlePropagation particlePropagation = new ParticlePropagation( D, velocity, mass, dt, seed );
                 particlePropagation.run( false );
                 int index = 1;
+                int N = particlePropagation.getDeltaEnergyThroughTime()
+                                           .size();
+                double sum = 0;
                 for ( double deltaEnergy : particlePropagation.getDeltaEnergyThroughTime() ) {
                     Values values;
                     if ( !results.containsKey( index ) ) {
@@ -82,10 +87,41 @@ public class App
                           .add( deltaEnergy );
 
                     index++;
+                    sum += deltaEnergy;
                 }
+
+                sum /= N;
+                io.get( dt )
+                  .getValues()
+                  .add( sum );
             }
 
             App.generateEnergyThoughtTimeCsv( dt, maxDt, results );
+            App.generateEnergyVsDtCsv( io );
+        }
+    }
+
+    private static void generateEnergyVsDtCsv( Map<Double, Values> io ) {
+        String csvFileName = "io_energy_vs_dt.csv";
+
+        File csvFile = new File( csvFileName + ".csv" );
+
+        try ( BufferedWriter writer = new BufferedWriter( new FileWriter( csvFile ) ) ) {
+            StringBuilder builder = new StringBuilder();
+            for ( double dt : io.keySet() ) {
+                double mean = io.get( dt )
+                                .getMean();
+                builder.append( dt )
+                       .append( "," )
+                       .append( mean )
+                       .append( "," )
+                       .append( Values.getStandardError( io.get( dt ), mean ) )
+                       .append( System.lineSeparator() );
+            }
+            writer.write( builder.toString() );
+        }
+        catch ( IOException e ) {
+            e.printStackTrace();
         }
     }
 
